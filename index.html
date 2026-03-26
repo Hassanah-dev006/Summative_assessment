@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PulseFX — Live Currency & Crypto Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background grid -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-pulse"></span>
+      <span class="logo-text">Pulse<em>FX</em></span>
+    </div>
+    <div class="header-right">
+      <div class="last-update" id="lastUpdate">Fetching data…</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="fetchAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">BTC/USD</span>
+      <span class="stat-value mono" id="statBTC">—</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">ETH/USD</span>
+      <span class="stat-value mono" id="statETH">—</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">EUR/USD</span>
+      <span class="stat-value mono" id="statEUR">—</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">RWF/USD</span>
+      <span class="stat-value mono" id="statRWF">—</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Markets</span>
+      <span class="stat-value mono" id="statMarket">—</span>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <main>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search asset…" oninput="applyFilters()" autocomplete="off" />
+      </div>
+      <div class="filter-tabs">
+        <button class="tab active" data-filter="all" onclick="setFilter('all', this)">All</button>
+        <button class="tab" data-filter="crypto" onclick="setFilter('crypto', this)">Crypto</button>
+        <button class="tab" data-filter="fiat" onclick="setFilter('fiat', this)">Fiat</button>
+        <button class="tab" data-filter="favorites" onclick="setFilter('favorites', this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Saved
+        </button>
+      </div>
+      <div class="sort-wrap">
+        <label class="sort-label">Sort by</label>
+        <select id="sortSelect" onchange="applyFilters()">
+          <option value="default">Default</option>
+          <option value="name_asc">Name A–Z</option>
+          <option value="name_desc">Name Z–A</option>
+          <option value="price_desc">Price High–Low</option>
+          <option value="price_asc">Price Low–High</option>
+          <option value="change_desc">Change % ↓</option>
+          <option value="change_asc">Change % ↑</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="col-fav"></span>
+        <span class="col-name">Asset</span>
+        <span class="col-price">Price (USD)</span>
+        <span class="col-change">24h Change</span>
+        <span class="col-type">Type</span>
+        <span class="col-extra">Market Cap / Rate</span>
+      </div>
+      <div id="assetList" class="asset-list">
+        <!-- Skeleton rows -->
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+        <div class="skeleton-row"><div class="skel"></div></div>
+      </div>
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-icon">◎</div>
+        <p>No assets match your search.</p>
+      </div>
+    </div>
+
+    <!-- Error banner -->
+    <div id="errorBanner" class="error-banner" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText">Unable to fetch data. Check your connection.</span>
+      <button onclick="document.getElementById('errorBanner').style.display='none'">✕</button>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <span>Data: <a href="https://www.coingecko.com" target="_blank" rel="noopener">CoinGecko API</a> &amp; <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a></span>
+    <span class="footer-sep">·</span>
+    <span>Prices in USD · Updates every 60s</span>
+    <span class="footer-sep">·</span>
+    <span>Built for ALU — Playing Around with APIs</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
