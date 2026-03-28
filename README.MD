@@ -3,6 +3,9 @@
 A real-time financial dashboard tracking 20 top cryptocurrencies and 15 major fiat currencies (including African currencies like RWF and KES). Built with plain HTML/CSS/JavaScript — no frameworks, no build tools.
 
 ---
+## Demo video link
+https://vimeo.com/1178038274?share=copy
+
 
 ## Features
 
