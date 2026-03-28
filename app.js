@@ -11,7 +11,7 @@ let activeFilter = 'all';
 let prevPrices   = {};
 let refreshTimer = null;
 
-/* ── Fetch ───────────────────────────────────────────── */
+
 async function fetchAll() {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
