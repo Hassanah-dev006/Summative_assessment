@@ -103,7 +103,7 @@ async function fetchAll() {
   refreshTimer = setTimeout(fetchAll, 60000);
 }
 
-/* ── Filters & Sort ──────────────────────────────────── */
+
 function setFilter(f, el) {
   activeFilter = f;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
